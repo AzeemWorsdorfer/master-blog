@@ -1,32 +1,54 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}All Blog Posts{% endblock %} {% block
+content %}
+<h1 class="page-title">Masterblog</h1>
 
-{% block title %}All Blog Posts{% endblock %}
-
-{% block content %}
-<h1 class="page-title">Latest Articles</h1>
-
-<div class="post-list">
-    <!-- Jinja2 for loop to iterate over the 'posts' list passed from app.py -->
-    {% for post in posts %}
-        <article class="post-card">
-            <h2 class="post-title">{{ post.title }}</h2> 
-            <p class="post-meta">
-                By: <span class="post-author">{{ post.author }}</span>
-            </p>
-            <div class="post-content">
-                <!-- Display the main content of the post -->
-                <p>{{ post.content }}</p>
-            </div>
-            <!-- Placeholder link to view a full post (not yet implemented) -->
-            <a href="#" class="read-more-link">Read More &rarr;</a>
-        </article>
-    
-    {% else %}
-        <!-- This section displays if the 'posts' list is empty -->
-        <div class="no-posts-message">
-            <p>No blog posts found. Check your JSON file or add a new post.</p>
-        </div>
-    {% endfor %}
+<div class="add-link-container">
+  <a href="{{ url_for('add') }}" class="btn btn-primary">Create New Post</a>
 </div>
 
-{% endblock %}
+{% if posts %}
+<div class="post-list">
+  {% for post in posts %}
+  <article class="post-card">
+    <h2 class="post-title">{{ post.title }}</h2>
+    <p class="post-meta">
+      By: <span class="post-author">{{ post.author }}</span>
+      {% if post.created_at %} | Posted on {{ post.created_at }} {% endif %}
+    </p>
+    <div class="post-content">
+      <!-- Displaying only the first 250 characters as a preview -->
+      <p>
+        {{ post.content[:250] }}{% if post.content|length > 250 %}...{% endif %}
+      </p>
+    </div>
+
+    <!-- Edit and Delete Actions -->
+    <div class="actions">
+      <!-- Update Button -->
+      <a
+        href="{{ url_for('update', post_id=post.id) }}"
+        class="btn btn-secondary"
+        >Edit</a
+      >
+
+      <!-- Delete Button (using POST) -->
+      <form
+        method="POST"
+        action="{{ url_for('delete', post_id=post.id) }}"
+        style="display: inline"
+        onsubmit="return confirm('Are you sure you want to permanently delete the post titled: {{ post.title }}?');"
+      >
+        <button type="submit" class="btn btn-delete">Delete</button>
+      </form>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div
+  class="no-posts-message"
+  style="text-align: center; margin-top: 50px; font-style: italic"
+>
+  <p>No blog posts found! Start by creating one.</p>
+</div>
+{% endif %} {% endblock %}

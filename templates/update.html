@@ -1,0 +1,48 @@
+{% extends "base.html" %} {% block title %}Edit Post: {{ post.title }}{%
+endblock %} {% block content %}
+
+<div class="form-container">
+  <h1 class="page-title">Edit Post: "{{ post.title }}"</h1>
+
+  <!-- The form POSTs back to the same URL, which hits the POST method of the update route -->
+
+  <form method="POST" class="add-post-form">
+    <div class="form-group">
+      <label for="title">Post Title</label>
+
+      <input
+        type="text"
+        id="title"
+        name="title"
+        value="{{ post.title }}"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="author">Author Name</label>
+
+      <input
+        type="text"
+        id="author"
+        name="author"
+        value="{{ post.author }}"
+        required
+      />
+    </div>
+
+    <div class="form-group">
+      <label for="content">Content</label>
+      <textarea id="content" name="content" required>
+{{ post.content }}</textarea
+      >
+    </div>
+
+    <div class="form-actions">
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">Cancel</a>
+      <button type="submit" class="btn btn-primary">Save Changes</button>
+    </div>
+  </form>
+</div>
+
+{% endblock %}
