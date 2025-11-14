@@ -1,30 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Flask Blog</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
-  </head>
-  <body>
-    <h1>Welcome to My Flask Blog!</h1>
-    <div class="post">
-      <h2>Post Title</h2>
-      <p><em>Written by ...</em></p>
-      <p>Post content</p>
-    </div>
-    <div class="post">
-      <h2>Post Title</h2>
-      <p><em>Written by ...</em></p>
-      <p>Post content</p>
-    </div>
-    <div class="post">
-      <h2>Post Title</h2>
-      <p><em>Written by ...</em></p>
-      <p>Post content</p>
-    </div>
-  </body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}All Blog Posts{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Latest Articles</h1>
+
+<div class="post-list">
+    <!-- Jinja2 for loop to iterate over the 'posts' list passed from app.py -->
+    {% for post in posts %}
+        <article class="post-card">
+            <h2 class="post-title">{{ post.title }}</h2> 
+            <p class="post-meta">
+                By: <span class="post-author">{{ post.author }}</span>
+            </p>
+            <div class="post-content">
+                <!-- Display the main content of the post -->
+                <p>{{ post.content }}</p>
+            </div>
+            <!-- Placeholder link to view a full post (not yet implemented) -->
+            <a href="#" class="read-more-link">Read More &rarr;</a>
+        </article>
+    
+    {% else %}
+        <!-- This section displays if the 'posts' list is empty -->
+        <div class="no-posts-message">
+            <p>No blog posts found. Check your JSON file or add a new post.</p>
+        </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Post{% endblock %}
+
+{% block content %}
+
+<div class="form-container">
+    <h1 class="page-title">Create New Blog Post</h1>
+
+    <!-- The form submits data to the current URL, which is handled by the 'add' route -->
+    <form action="{{ url_for('add') }}" method="POST" class="add-post-form">
+        
+        <!-- Title Input -->
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" name="title" id="title" required
+                   placeholder="e.g., The Future of Web Development">
+        </div>
+
+        <!-- Author Input -->
+        <div class="form-group">
+            <label for="author">Author Name</label>
+            <input type="text" name="author" id="author" required
+                   placeholder="e.g., Alex Johnson">
+        </div>
+
+        <!-- Content Textarea -->
+        <div class="form-group">
+            <label for="content">Content</label>
+            <textarea name="content" id="content" rows="8" required
+                      placeholder="Write your amazing blog post content here..."></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-group">
+            <button type="submit" class="button primary">
+                Publish Post
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
