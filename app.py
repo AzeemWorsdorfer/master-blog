@@ -6,7 +6,12 @@ BLOG_POST_FILE = "blog_posts.json"
 
 
 def load_posts():
-    """ Loads blog posts from JSON file"""
+    """
+    Loads blog posts from the JSON file.
+
+    Returns:
+        list: A list of blog post dictionaries. Returns an empty list on file error or absence.
+    """
     if not os.path.exists(BLOG_POST_FILE) or os.path.getsize(BLOG_POST_FILE) == 0:
         return []
 
@@ -20,7 +25,12 @@ def load_posts():
 
 
 def save_posts(posts):
-    """ Writes the current lists of posts back to the JSON (CRITICAL FIX)."""
+    """
+    Writes the current list of posts back to the JSON file.
+
+    Args:
+        posts (list): The list of blog post dictionaries to save.
+    """
     try:
         # Use json.dump to write directly to the file object
         with open(BLOG_POST_FILE, "w") as f:
@@ -35,6 +45,9 @@ def get_next_id():
     """
     Generates the next sequential ID for a new blog post.
     Finds the highest existing ID and adds 1.
+
+    Returns:
+        int: The next available ID.
     """
 
     current_posts = load_posts()
@@ -47,10 +60,10 @@ def get_next_id():
 
 # --- Application Initialization ---
 
-# Load data on start, and make sure it exists
-blog_posts = load_posts()
+# Load data on start, and make sure the file exists if posts were loaded
+initial_posts = load_posts()
 if not os.path.exists(BLOG_POST_FILE):
-    save_posts(blog_posts)
+    save_posts(initial_posts)
 
 app = Flask(__name__)
 
@@ -59,15 +72,25 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    # Reload posts to ensure the latest version is always displayed
-    global blog_posts
+    """
+    The main route, displays all blog posts.
+
+    Returns:
+        render_template: Renders the index.html template with the current posts.
+    """
+    # Simply load posts without modifying any global variable
     blog_posts = load_posts()
     return render_template("index.html", posts=blog_posts)
 
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
-    global blog_posts
+    """
+    Handles adding a new blog post.
+
+    GET: Displays the add post form.
+    POST: Processes the form data, creates a new post, saves it, and redirects to index.
+    """
     if request.method == 'POST':
         title = request.form.get('title')
         author = request.form.get('author')
@@ -83,7 +106,8 @@ def add():
             'content': content
         }
 
-        # Append to the list in memory and save to file
+        # Load, append, and save
+        blog_posts = load_posts()
         blog_posts.append(new_post)
         save_posts(blog_posts)
 
@@ -94,9 +118,16 @@ def add():
 
 @app.route('/update/<int:post_id>', methods=['GET', 'POST'])
 def update(post_id):
-    """Handles updating an existing blog post."""
-    global blog_posts
+    """
+    Handles updating an existing blog post.
 
+    Args:
+        post_id (int): The ID of the post to update.
+
+    GET: Shows the update form populated with existing data.
+    POST: Processes the form data, updates the post, saves it, and redirects to index.
+    """
+    blog_posts = load_posts()
     post_to_edit = next(
         (post for post in blog_posts if post.get('id') == post_id), None)
 
@@ -111,7 +142,7 @@ def update(post_id):
         if not title or not author or not content:
             return render_template('update.html', post=post_to_edit)
 
-        # Update the post in the in-memory list
+        # Update the post in the list
         post_to_edit['title'] = title
         post_to_edit['author'] = author
         post_to_edit['content'] = content
@@ -125,15 +156,23 @@ def update(post_id):
 
 @app.route('/delete/<int:post_id>', methods=['POST'])
 def delete(post_id):
-    """Handles deleting a post (now uses POST method)."""
-    global blog_posts
+    """
+    Handles deleting a post.
 
+    Args:
+        post_id (int): The ID of the post to delete.
+
+    POST: Deletes the post, saves the updated list, and redirects to index.
+    """
+    blog_posts = load_posts()
     original_length = len(blog_posts)
-    blog_posts = [post for post in blog_posts if post.get('id') != post_id]
 
-    if len(blog_posts) < original_length:
+    # Filter out the post to be deleted
+    updated_posts = [post for post in blog_posts if post.get('id') != post_id]
+
+    if len(updated_posts) < original_length:
         print(f"INFO: Deleted post ID {post_id}.")
-        save_posts(blog_posts)
+        save_posts(updated_posts)  # Save the filtered list
     else:
         print(f"WARNING: Attempted to delete non-existent post ID {post_id}.")
 
